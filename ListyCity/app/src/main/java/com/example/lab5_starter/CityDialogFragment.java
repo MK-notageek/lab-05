@@ -17,6 +17,7 @@ public class CityDialogFragment extends DialogFragment {
     interface CityDialogListener {
         void updateCity(City city, String title, String year);
         void addCity(City city);
+        void deleteCity(City city);
     }
     private CityDialogListener listener;
 
@@ -58,22 +59,38 @@ public class CityDialogFragment extends DialogFragment {
             editMovieYear.setText(city.getProvince());
         }
         else {
-            city = null;}
+            city = null;
+        }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        return builder
-                .setView(view)
-                .setTitle("City Details")
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Continue", (dialog, which) -> {
-                    String title = editMovieName.getText().toString();
-                    String year = editMovieYear.getText().toString();
-                    if (Objects.equals(tag, "City Details")) {
+
+        if (city != null) {
+            // Viewing existing city - show Update and Delete buttons
+            return builder
+                    .setView(view)
+                    .setTitle("City Details")
+                    .setNegativeButton("Cancel", null)
+                    .setNeutralButton("Delete", (dialog, which) -> {
+                        listener.deleteCity(city);
+                    })
+                    .setPositiveButton("Update", (dialog, which) -> {
+                        String title = editMovieName.getText().toString();
+                        String year = editMovieYear.getText().toString();
                         listener.updateCity(city, title, year);
-                    } else {
+                    })
+                    .create();
+        } else {
+            // Adding new city
+            return builder
+                    .setView(view)
+                    .setTitle("Add City")
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Add", (dialog, which) -> {
+                        String title = editMovieName.getText().toString();
+                        String year = editMovieYear.getText().toString();
                         listener.addCity(new City(title, year));
-                    }
-                })
-                .create();
+                    })
+                    .create();
+        }
     }
 }
